@@ -1,6 +1,8 @@
 const connectToMongo = require('./db');
 const express = require('express')
-var cors = require('cors');
+const cors = require('cors');
+const errorHandler = require('./middlewares/errorHandler');
+const notFound = require('./middlewares/notFound');
 connectToMongo();
 require('dotenv').config();
 
@@ -15,7 +17,15 @@ app.get('/', (req, res) => {
      message: 'Hello There',
    });
 });
-  
+
+//Available Routes
+// app.use('/api/auth',require('./routes/auth'));
+// app.use('/api/group',require('./routes/group'));
+
+//Handling page not found
+app.use(notFound);
+app.use(errorHandler);
+
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
    console.log(`Currently Listening at http://localhost:${port}`);
