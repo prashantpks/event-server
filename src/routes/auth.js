@@ -24,7 +24,7 @@ router.post('/createuser',[
     }
 
     try{
-        //Check whwther user with same email or username exist
+        //Check whether user with same email or username exist
         let user = await User.findOne({username:req.body.username});
         if(user){
             return res.status(400).json({success,error:"Sorry! this username already exists"});
@@ -53,6 +53,46 @@ router.post('/createuser',[
         success = true;
         return res.status(200).json({success,authToken,user});
 
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+});
+
+
+//ROUTE 2: Login user using POST: api/auth/login Doesn't require authentication
+router.post('/login',[
+    body('username','Enter valid credentials').isLength({min:4}),
+    body('password','Enter valid credentials').isLength({min:6}),
+],async (req,res)=>{
+    let success = false;
+
+    //If errors in credentials
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({success,error: errors.array()});
+    }
+
+    try{
+        const user = await User.findOne({username:req.body.username});
+        if(!user){
+            return res.status(400).json({success,error:"Invalid credentials"});
+        }
+
+        let password = req.body.password;
+        let passwordMatch = await bcrypt.compare(password,user.password);
+        if(!passwordMatch){
+            return res.status(400).json({success,error:"Invalid Credentials"});
+        }
+
+        const data = {
+            user:{
+                id:user.id
+            }
+        }
+
+        const authToken = jwt.sign(data,JWT_SECRET_KEY);
+        success = true;
+        return res.status(200).json({success,authToken,user});
     }catch(err){
         return res.status(500).json({success,error:err.message,message:"Internal server error"});
     }
