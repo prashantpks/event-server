@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 
 //Available Routes
 app.use('/api/auth',require('./routes/auth'));
-// app.use('/api/group',require('./routes/group'));
+app.use('/api/event',require('./routes/event'));
 
 //Handling page not found
 app.use(notFound);
