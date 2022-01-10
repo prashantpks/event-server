@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Event = require('../models/Event');
 const {body,validationResult } = require('express-validator');
+const fetchuser = require('../middlewares/fetchuser');
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
@@ -99,5 +100,41 @@ router.post('/login',[
 });
 
 //ROUTE 3: Update user details using PUT: /api/auth/updateuser Require authentication
-router.put('/updateuser')
+router.put('/updateuser',fetchuser, async (req,res)=>{
+    let success = false;
+
+    try{
+        const userid = req.user.id;
+        let user = await User.findById(userid).select('-password');
+        const {username,email,photo,about} = req.body;
+        let updatedUser = await User.findOne({username});
+        
+        if(username!==user.username){
+            if(updatedUser){
+                return res.status(400).json({success,error:"Username already exist"});
+            }
+        }
+
+        updatedUser = await User.findOne({email});
+        if(email!==user.email){
+            if(updatedUser){
+                return res.status(400).json({success,error:"Email already exist"});
+            }
+        }
+
+        updatedUser = {
+            username: username,
+            email: email,
+            about: about,
+            photo: photo
+        }
+
+        user = await User.findByIdAndUpdate(userid,{$set : updatedUser}, {new:true});
+        success = true;
+        return res.status(200).json({success, user});
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+});
+
 module.exports = router;
