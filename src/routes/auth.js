@@ -98,4 +98,6 @@ router.post('/login',[
     }
 });
 
+//ROUTE 3: Update user details using PUT: /api/auth/updateuser Require authentication
+router.put('/updateuser')
 module.exports = router;
