@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const fetchuser = require('../middlewares/fetchuser');
+const { findByIdAndUpdate } = require('../models/Event');
 const Event = require('../models/Event');
 const User = require('../models/User');
 
@@ -138,5 +139,72 @@ router.get('/fetcheventlist',async (req,res)=>{
     }
 });
 
+//ROUTE 6: Star the event using PUT: api/event/star/:id , Require authentication
+router.put('/star/:id', fetchuser, async (req,res)=>{
+    let success = false;
+
+    try{
+        let userid = req.user.id;
+        let event = await Event.findById(req.params.id);
+        if(event.organizer.toString()!==userid){
+            return res.status(400).json({success,error:"Access denied"})
+        }
+
+        event = await Event.findByIdAndUpdate(req.params.id,{$set : { stars: event.stars+1}},{new : true});
+        
+        const addEventToUser = (userid,event)=>{
+            User.findByIdAndUpdate(
+                userid,
+                { "$push" : { "starred_events" : event._id } },
+                {"new": true},
+                function(err){
+                    if(err){ 
+                        return res.status(400).json({success,error:err});
+                    }
+                }
+            );
+        }
+
+        addEventToUser(userid,event);
+        success = true;
+        return res.status(200).json({success,message:"Event moved to favourites"});
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+});
+
+//ROUTE 7: Unstar the event using: PUT api/event/unstar/:id , Require authentication
+router.put('/unstar/:id', fetchuser, async (req,res)=>{
+    let success = false;
+
+    try{
+        let userid = req.user.id;
+        let event = await Event.findById(req.params.id);
+        if(event.organizer.toString()!==userid){
+            return res.status(400).json({success,error:"Access denied"})
+        }
+
+        event = await Event.findByIdAndUpdate(req.params.id,{$set : { stars: event.stars-1}},{new : true});
+        
+        const removeEventFromUser = (userid,event)=>{
+            User.findByIdAndUpdate(
+                userid,
+                { "$pull" : { "starred_events" : event._id } },
+                {"new": true},
+                function(err){
+                    if(err){ 
+                        return res.status(400).json({success,error:err});
+                    }
+                }
+            );
+        }
+
+        removeEventFromUser(userid,event);
+        success = true;
+        return res.status(200).json({success, message:"Event removed from favourites"});
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+});
 
 module.exports = router;
