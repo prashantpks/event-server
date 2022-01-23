@@ -133,7 +133,7 @@ router.get('/fetcheventlist',async (req,res)=>{
                                                    {start_time:{$gte: start, $lte: end}, end_time:{$gte:end}}]
                                             });
         success = true;
-        return res.status(200).json({success,eventlist});
+        return res.status(200).json({success,events:eventlist});
     }catch(err){
         return res.status(500).json({success,error:err.message,message:"Internal server error"});
     }
@@ -206,5 +206,47 @@ router.put('/unstar/:id', fetchuser, async (req,res)=>{
         return res.status(500).json({success,error:err.message,message:"Internal server error"});
     }
 });
+
+//ROUTE 8: Fetch all events created by me using GET: api/event/myevents Require authentication
+router.get('/myevents', fetchuser, async (req,res)=>{
+    let success = false;
+    try{
+        let userid = req.user.id;
+        const user = await User.findById(userid);
+        let events = [];
+        for(let i=0;i<user.my_events.length;i++){
+            const event = await Event.findById(user.my_events[i]);
+            if(event){
+                events.push(event);
+            }
+        }
+
+        success = true;
+        return res.status(200).json({success,events});
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+})
+
+//ROUTE 9: Fetch all starred events created by user using GET: api/event/mystarevents Require authentication
+router.get('/mystarevents', fetchuser, async (req,res)=>{
+    let success = false;
+    try{
+        let userid = req.user.id;
+        const user = await User.findById(userid);
+        let events = [];
+        for(let i=0;i<user.starred_events.length;i++){
+            const event = await Event.findById(user.starred_events[i]);
+            if(event){
+                events.push(event);
+            }
+        }
+
+        success = true;
+        return res.status(200).json({success,events});
+    }catch(err){
+        return res.status(500).json({success,error:err.message,message:"Internal server error"});
+    }
+})
 
 module.exports = router;
