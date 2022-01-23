@@ -116,17 +116,13 @@ router.delete('/deleteevent/:id',fetchuser, async (req,res)=>{
 });
 
 //ROUTE 5: Fetch all eventlist using GET: api/event/fetcheventlist Doesn't require authentication
-router.get('/fetcheventlist',async (req,res)=>{
+router.post('/fetcheventlist',async (req,res)=>{
     success = false;
 
     try{
         let start = new Date(req.body.start_time);
-        let end;
-        if(req.body.end_time){
-            end = new Date(req.body.end_time);
-        }else{
-            end = new Date(req.body.start_time);
-        }
+        let end = new Date(req.body.end_time);
+        
 
         const eventlist = await Event.find({$or : [{start_time:{$gte: start, $lte: end}, end_time:{$gte:start,$lte: end}},
                                                    {start_time:{$lte: start}, end_time:{$gte:start,$lte: end}},
