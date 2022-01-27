@@ -32,8 +32,8 @@ const eventSchema = new Schema({
         required: true
     },
     organizer:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        type: String,
+        required:true,
     },
     start_time:{
         type: Date,

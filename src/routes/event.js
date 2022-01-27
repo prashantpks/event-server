@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const fetchuser = require('../middlewares/fetchuser');
-const { findByIdAndUpdate } = require('../models/Event');
 const Event = require('../models/Event');
 const User = require('../models/User');
 
@@ -11,7 +10,9 @@ router.post('/addevent',fetchuser,async (req,res)=>{
     
     try{
         let {event_name, description, event_banner, address, latitude,longitude, start_time, end_time} = req.body;
-        let organizer = req.user.id;
+        let organizerid = req.user.id;
+        // let organizer = await User.findById(organizerid).username;
+        // console.log(organizer);
         start_time = new Date(start_time);
         end_time = new Date(end_time);
 
@@ -24,7 +25,7 @@ router.post('/addevent',fetchuser,async (req,res)=>{
             longitude,
             start_time,
             end_time,
-            organizer
+            organizer: req.user.username
         });
 
         const addEventToUser = (userid,event)=>{
@@ -40,7 +41,7 @@ router.post('/addevent',fetchuser,async (req,res)=>{
             );
         }
 
-        addEventToUser(organizer,event);
+        addEventToUser(organizerid,event);
         success = true;
         return res.status(200).json({success,event});
 

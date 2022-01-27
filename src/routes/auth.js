@@ -46,7 +46,8 @@ router.post('/createuser',[
         });
         const data = {
             user:{
-                id:user.id
+                id:user.id,
+                username: user.username
             }
         }
         const authToken = jwt.sign(data,JWT_SECRET_KEY);
@@ -86,7 +87,8 @@ router.post('/login',[
 
         const data = {
             user:{
-                id:user.id
+                id:user.id,
+                username: user.username
             }
         }
 
