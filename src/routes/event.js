@@ -63,7 +63,7 @@ router.put('/updateevent/:id',fetchuser,async (req,res)=>{
             return res.status(400).json({success,error:"Event doesn't exist"});
         }
 
-        if(req.user.id !== event.organizer.toString()){
+        if(req.user.username !== event.organizer){
             return res.status(401).json({success,error:"Access denied!"});
         }
 
@@ -104,7 +104,7 @@ router.delete('/deleteevent/:id',fetchuser, async (req,res)=>{
             return res.status(400).json({success, error:"Event doesn't exist!"});
         }
 
-        if(event.organizer.toString()!== req.user.id){
+        if(event.organizer!== req.user.username){
             return res.status(400).json({success,error:"Access denied!"});
         }
 
@@ -143,7 +143,7 @@ router.put('/star/:id', fetchuser, async (req,res)=>{
     try{
         let userid = req.user.id;
         let event = await Event.findById(req.params.id);
-        if(event.organizer.toString()!==userid){
+        if(event.organizer!==req.user.username){
             return res.status(400).json({success,error:"Access denied"})
         }
 
@@ -177,7 +177,7 @@ router.put('/unstar/:id', fetchuser, async (req,res)=>{
     try{
         let userid = req.user.id;
         let event = await Event.findById(req.params.id);
-        if(event.organizer.toString()!==userid){
+        if(event.organizer!==req.user.username){
             return res.status(400).json({success,error:"Access denied"})
         }
 
