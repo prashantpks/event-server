@@ -127,7 +127,8 @@ router.post('/fetcheventlist',async (req,res)=>{
 
         const eventlist = await Event.find({$or : [{start_time:{$gte: start, $lte: end}, end_time:{$gte:start,$lte: end}},
                                                    {start_time:{$lte: start}, end_time:{$gte:start,$lte: end}},
-                                                   {start_time:{$gte: start, $lte: end}, end_time:{$gte:end}}]
+                                                   {start_time:{$gte: start, $lte: end}, end_time:{$gte:end}},
+                                                   {start_time:{$lte: start}, end_time:{$gte:end}}]
                                             });
         success = true;
         return res.status(200).json({success,events:eventlist});
