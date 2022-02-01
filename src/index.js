@@ -13,11 +13,7 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
 }));
 
-app.get('/', (req, res) => {
-  res.json({
-     message: 'Hello There',
-   });
-});
+
 
 //Available Routes
 app.use('/api/auth',require('./routes/auth'));
